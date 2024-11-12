@@ -46,7 +46,7 @@ def processar_dados():
     engine = criar_conexao()
 
     caminho_xlsx = r'C:\Users\João Pedro Cordeiro\Desktop\ARTHUR\SWITCH\BdSwitchBackup-1\AUTOMACAO\ARUIVO_XLSX\Teste_Padrão de BD_v2.xlsx'
-    caminho_csv = r'C:\Users\João Pedro Cordeiro\Desktop\ARTHUR\SWITCH\BdSwitchBackup-1\csv_bd.csv'
+    caminho_csv = r'C:\Users\João Pedro Cordeiro\Desktop\ARTHUR\SWITCH\BdSwitchBackup-1\AUTOMACAO\ARUIVO_CSV\csv_bd.csv'
     
     # Nome da tabela no SQL Server
     table_name = 'DADOS_SWITCH'
