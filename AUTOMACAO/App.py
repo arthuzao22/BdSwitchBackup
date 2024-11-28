@@ -93,14 +93,19 @@ def gerarOp(df, caminho_csv):
 
 def gerarSku(df, caminho_csv):
     try:
+        # Gera o campo 'SKU' combinando 'COD_SAIDA' e o hash de 'NOME_ARQUIVO'
+        df['SKU'] = df.apply(
+            lambda row: row['COD_SAIDA'] + hashlib.sha256(row['NOME_ARQUIVO'].encode()).hexdigest(),
+            axis=1
+        )
+        
+        # Salva o DataFrame atualizado em CSV
         df.to_csv(caminho_csv, index=False)
         
-        #GERA O CODIGO DE SAIDA
-        df['SKU'] = df['COD_SAIDA']+''+df['COD_OP']
-        
         return df
-    except:
-        return "Geração de 'SKU' deu erro!'"
+    except Exception as e:
+        return f"Geração de 'SKU' deu erro: {e}"
+
     
 # Função principal para executar as operações de conversão, deletar e inserir dados
 def processar_dados():
