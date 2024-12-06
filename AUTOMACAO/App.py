@@ -62,28 +62,9 @@ def gerarOp(df, caminho_csv):
                df['MIOLO_COR'].astype(str) + 
                df['DATA_SAIDA'].astype(str))
         
-        # Lista para armazenar os códigos
-        codigos = []
-        ultimo_codigo = None
+        print(df2)
         
-        for i in range(len(df)):
-            if i == 0: 
-                # Gera o primeiro código com hash
-                novo_codigo = hashlib.sha256(df2[i].encode()).hexdigest()
-            else:
-                # Verifica se o valor de df2 é igual ao anterior
-                if df2[i] == df2[i - 1]:
-                    novo_codigo = ultimo_codigo  # Código da linha anterior
-                else:
-                    # Caso contrário, gera um novo código único com base no índice
-                    novo_codigo = hashlib.sha256(df2[i].encode()).hexdigest()
-            
-            # Armazenar o código gerado
-            codigos.append(novo_codigo)
-            ultimo_codigo = novo_codigo  # Atualiza o código anterior para comparação
         
-        # Atribui os códigos à coluna 'COD_OP', com a marca em maiúsculas e código gerado
-        df['COD_OP'] = df['MARCA'].str.upper() + '' + pd.Series(codigos)
         
         return df
 
@@ -105,7 +86,6 @@ def gerarSku(df, caminho_csv):
         return df
     except Exception as e:
         return f"Geração de 'SKU' deu erro: {e}"
-
     
 # Função principal para executar as operações de conversão, deletar e inserir dados
 def processar_dados():
