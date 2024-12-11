@@ -1,7 +1,7 @@
 USE [BDSWITCH]
 GO
 
-/****** Object:  Table [dbo].[DADOS_SWITCH]    Script Date: 28/11/2024 14:25:16 ******/
+/****** Object:  Table [dbo].[DADOS_SWITCH]    Script Date: 11/12/2024 11:22:02 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -12,12 +12,14 @@ CREATE TABLE [dbo].[DADOS_SWITCH](
 	[ID] [int] IDENTITY(1,1) NOT NULL,
 	[COD_SAIDA] [varchar](50) NULL,
 	[COD_OP] [varchar](255) NULL,
+	[COD_OS] [varchar](255) NULL,
 	[SKU] [varchar](255) NULL,
 	[NOME_ARQUIVO] [varchar](100) NULL,
-	[MARCA] [varchar](50) NULL,
 	[ESCOLA] [varchar](50) NULL,
-	[REGIAO] [varchar](50) NULL,
 	[TIRAGEM] [int] NULL,
+	[PAGINACAO] [int] NULL,
+	[MARCA] [varchar](50) NULL,
+	[REGIAO] [varchar](50) NULL,
 	[SEGMENTO] [varchar](50) NULL,
 	[ENSINO] [varchar](50) NULL,
 	[TURNO] [varchar](50) NULL,
@@ -31,10 +33,11 @@ CREATE TABLE [dbo].[DADOS_SWITCH](
 	[CAPA_TIPO] [varchar](50) NULL,
 	[ACABAMENTO1] [varchar](50) NULL,
 	[REFILE] [char](10) NULL,
-	[FORMATO_FINAL] [char](10) NULL,
+	[FORMATO_FINAL] [varchar](100) NULL,
 	[MAQUINARIO] [varchar](50) NULL,
 	[DATA_SAIDA] [date] NULL,
 	[DATA_ENTREGA] [date] NULL,
+	[IMPRESSOES] [int] NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC

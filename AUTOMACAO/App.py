@@ -45,30 +45,35 @@ def geracaoCod(df, caminho_csv):
         return "Geração de 'COD_SAIDA' deu erro!'"
 
 
-def gerarOp(df, caminho_csv):
+def gerarOp(df, caminho_csv, engine):
     try:
-        # Salvar o DataFrame em um arquivo CSV
         df.to_csv(caminho_csv, index=False)
         
-        # Concatenar as colunas selecionadas em uma string
-        df2 = (df['SEGMENTO'].astype(str) + 
-               df['ENSINO'].astype(str) + 
-               df['TURNO'].astype(str) + 
-               df['MODELO'].astype(str) + 
-               df['MATERIAL'].astype(str) + 
-               df['MIOLO_PAPEL'].astype(str) + 
-               df['MIOLO_FORMATO'].astype(str) + 
-               df['MIOLO_GRAMATURA'].astype(str) + 
-               df['MIOLO_COR'].astype(str) + 
-               df['DATA_SAIDA'].astype(str))
+        # Executar a consulta SQL
+        query = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_MARCA"
+        cod_table_marca = pd.read_sql_query(query, engine)
         
-        print(df2)
+        query = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_REGIAO"
+        cod_table_regiao = pd.read_sql_query(query, engine)
         
+
+        if df['MARCA'].isin(cod_table_marca['MARCA_NOME']).any():
+            COD_MARCA = df['MARCA'].map(cod_table_marca.set_index('MARCA_NOME')['MARCA_COD'].astype(str))
         
+        if df['REGIAO'].isin(cod_table_regiao['REGIAO_NOME']).any():
+            COD_REGIAO = df['REGIAO'].map(cod_table_regiao.set_index('REGIAO_NOME')['REGIAO_COD'].astype(str))
+            
+
+        # Concatenar os códigos de MARCA e REGIAO
+        df['COD_OP'] = COD_MARCA + COD_REGIAO
         
+        # Salvar novamente o CSV com a nova coluna 'COD_OP'
+        df.to_csv(caminho_csv, index=False)
         return df
 
     except Exception as e:
+        # Capturar e retornar mensagens de erro
+        print(f"Erro ocorrido: {str(e)}")
         return f"Geração de 'COD_OP' deu erro! Erro: {str(e)}"
 
 
@@ -108,7 +113,7 @@ def processar_dados():
         geracaoCod(df, caminho_csv)
 
         #Gerar 'COD_OP'
-        gerarOp(df, caminho_csv)
+        gerarOp(df, caminho_csv, engine)
         
         #Gerar 'SKU'
         gerarSku(df, caminho_csv)
