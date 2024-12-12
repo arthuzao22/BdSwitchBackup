@@ -45,36 +45,68 @@ def geracaoCod(df, caminho_csv):
         return "Geração de 'COD_SAIDA' deu erro!'"
 
 
-def gerarOp(df, caminho_csv, engine):
+def gerarCodOp(df, caminho_csv, engine):
     try:
+        # Salvar o DataFrame inicial em CSV
         df.to_csv(caminho_csv, index=False)
         
-        # Executar a consulta SQL
-        query = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_MARCA"
-        cod_table_marca = pd.read_sql_query(query, engine)
+        # Executar as consultas SQL
+        query_marca = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_MARCA"
+        cod_table_marca = pd.read_sql_query(query_marca, engine)
         
-        query = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_REGIAO"
-        cod_table_regiao = pd.read_sql_query(query, engine)
+        query_regiao = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_REGIAO" 
+        cod_table_regiao = pd.read_sql_query(query_regiao, engine)
         
-
-        if df['MARCA'].isin(cod_table_marca['MARCA_NOME']).any():
-            COD_MARCA = df['MARCA'].map(cod_table_marca.set_index('MARCA_NOME')['MARCA_COD'].astype(str))
+        query_segmento = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_SEGMENTO"
+        cod_table_segmento = pd.read_sql_query(query_segmento, engine)
         
-        if df['REGIAO'].isin(cod_table_regiao['REGIAO_NOME']).any():
-            COD_REGIAO = df['REGIAO'].map(cod_table_regiao.set_index('REGIAO_NOME')['REGIAO_COD'].astype(str))
-            
-
-        # Concatenar os códigos de MARCA e REGIAO
-        df['COD_OP'] = COD_MARCA + COD_REGIAO
+        query_turno = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_TURNO"
+        cod_table_turno = pd.read_sql_query(query_turno, engine)
         
-        # Salvar novamente o CSV com a nova coluna 'COD_OP'
+        query_modelo = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_MODELO"
+        cod_table_modelo = pd.read_sql_query(query_modelo, engine)
+        
+        query_especificacoes = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_ESPECIFICACOES"
+        cod_table_especificacoes = pd.read_sql_query(query_especificacoes, engine)
+        
+        query_unidade = "SELECT * FROM BDSWITCH.dbo.CODIGOS_GERACAO_UNIDADE"
+        cod_table_unidade = pd.read_sql_query(query_unidade, engine)
+        
+        
+        # Mapear os códigos de MARCA e REGIAO
+        COD_MARCA = df['MARCA'].map(cod_table_marca.set_index('MARCA_NOME')['MARCA_COD'].astype(str)).fillna("")
+        COD_REGIAO = df['REGIAO'].map(cod_table_regiao.set_index('REGIAO_NOME')['REGIAO_COD'].astype(str)).fillna("")
+        COD_SEGMENTO = df['SEGMENTO'].map(cod_table_segmento.set_index('SEGMENTO_NOME')['SEGMENTO_COD'].astype(str)).fillna("")
+        COD_TURNO = df['TURNO'].map(cod_table_turno.set_index('TURNO_NOME')['TURNO_COD'].astype(str)).fillna("")
+        COD_MODELO = df['MODELO'].map(cod_table_modelo.set_index('MODELO_NOME')['MODELO_COD'].astype(str)).fillna("")
+        
+        ESPECIFICACOES = df['MIOLO_PAPEL'] +'-'+ df['MIOLO_FORMATO'] +'-'+ df['MIOLO_GRAMATURA'] +'-'+ df['MIOLO_COR'] 
+        COD_ESPECIFICACOES = ESPECIFICACOES.map(cod_table_especificacoes.set_index('ESPECIFICACOES_NOME')['ESPECIFICACOES_COD'].astype(str)).fillna("")
+        
+        UNIDADE = df['MARCA'] +'-'+ df['ESCOLA']
+        COD_UNIDADE = UNIDADE.map(cod_table_unidade.set_index('UNIDADE_NOME')['UNIDADE_COD'].astype(str)).fillna("")
+        
+        # Verificar e utilizar 'DATA_ENTREGA'
+        COD_ENTREGA = df['DATA_ENTREGA'].dt.strftime('%Y%m%d').fillna("")
+        
+        # Verificar se há dados faltantes antes da concatenação
+        if COD_MARCA.isnull().any() or COD_REGIAO.isnull().any():
+            print("Atenção: Alguns códigos de marca ou região não foram encontrados.")
+        
+        # Concatenar os códigos para gerar 'COD_OP'
+        df['COD_OP'] = ' MARCA: '+ COD_MARCA +' REGIAO: '+ COD_REGIAO +' ENTREGA: '+ COD_ENTREGA +' SEGMENTO: '+ COD_SEGMENTO +' TURNO: '+ COD_TURNO +' MODELO: '+ COD_MODELO +' ESPECIFICACOES: '+ COD_ESPECIFICACOES +' UNIDADE: '+ COD_UNIDADE
+        
+        # Salvar novamente o DataFrame com a nova coluna
         df.to_csv(caminho_csv, index=False)
+        
+        print("CSV atualizado com sucesso!")
         return df
-
+    
     except Exception as e:
-        # Capturar e retornar mensagens de erro
-        print(f"Erro ocorrido: {str(e)}")
-        return f"Geração de 'COD_OP' deu erro! Erro: {str(e)}"
+        print(f"Ocorreu um erro: {e}")
+        raise
+    
+
 
 
 def gerarSku(df, caminho_csv):
@@ -97,7 +129,7 @@ def processar_dados():
     # Criando a engine de conexão
     engine = criar_conexao()
 
-    caminho_xlsx = r'C:\Users\João Pedro Cordeiro\Desktop\ARTHUR\SWITCH\BdSwitchBackup-1\AUTOMACAO\ARUIVO_XLSX\Teste_Padrão de BD_v2.xlsx'
+    caminho_xlsx = r'C:\Users\João Pedro Cordeiro\Desktop\ARTHUR\SWITCH\BdSwitchBackup-1\AUTOMACAO\ARUIVO_XLSX\Cópia de Teste_Padrão_de_BD_13-12.xlsx'
     caminho_csv = r'C:\Users\João Pedro Cordeiro\Desktop\ARTHUR\SWITCH\BdSwitchBackup-1\AUTOMACAO\ARUIVO_CSV\csv_bd.csv'
     
     # Nome da tabela no SQL Server
@@ -113,7 +145,7 @@ def processar_dados():
         geracaoCod(df, caminho_csv)
 
         #Gerar 'COD_OP'
-        gerarOp(df, caminho_csv, engine)
+        gerarCodOp(df, caminho_csv, engine)
         
         #Gerar 'SKU'
         gerarSku(df, caminho_csv)
