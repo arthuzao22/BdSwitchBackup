@@ -74,17 +74,17 @@ def gerarCodOp(df, caminho_csv, engine):
         
         
         # Mapear os códigos de MARCA e REGIAO
-        COD_MARCA = df['MARCA'].map(cod_table_marca.set_index('MARCA_NOME')['MARCA_COD'].astype(str)).fillna("")
-        COD_REGIAO = df['REGIAO'].map(cod_table_regiao.set_index('REGIAO_NOME')['REGIAO_COD'].astype(str)).fillna("")
-        COD_SEGMENTO = df['SEGMENTO'].map(cod_table_segmento.set_index('SEGMENTO_NOME')['SEGMENTO_COD'].astype(str)).fillna("")
-        COD_TURNO = df['TURNO'].map(cod_table_turno.set_index('TURNO_NOME')['TURNO_COD'].astype(str)).fillna("")
-        COD_MODELO = df['MODELO'].map(cod_table_modelo.set_index('MODELO_NOME')['MODELO_COD'].astype(str)).fillna("")
+        COD_MARCA = df['MARCA'].map(cod_table_marca.set_index('MARCA_NOME')['MARCA_COD'].astype(str)).fillna("00")
+        COD_REGIAO = df['REGIAO'].map(cod_table_regiao.set_index('REGIAO_NOME')['REGIAO_COD'].astype(str)).fillna("00")
+        COD_SEGMENTO = df['SEGMENTO'].map(cod_table_segmento.set_index('SEGMENTO_NOME')['SEGMENTO_COD'].astype(str)).fillna("0")
+        COD_TURNO = df['TURNO'].map(cod_table_turno.set_index('TURNO_NOME')['TURNO_COD'].astype(str)).fillna("0")
+        COD_MODELO = df['MODELO'].map(cod_table_modelo.set_index('MODELO_NOME')['MODELO_COD'].astype(str)).fillna("0")
         
         ESPECIFICACOES = df['MIOLO_PAPEL'] +'-'+ df['MIOLO_FORMATO'] +'-'+ df['MIOLO_GRAMATURA'] +'-'+ df['MIOLO_COR'] 
-        COD_ESPECIFICACOES = ESPECIFICACOES.map(cod_table_especificacoes.set_index('ESPECIFICACOES_NOME')['ESPECIFICACOES_COD'].astype(str)).fillna("")
+        COD_ESPECIFICACOES = ESPECIFICACOES.map(cod_table_especificacoes.set_index('ESPECIFICACOES_NOME')['ESPECIFICACOES_COD'].astype(str)).fillna("000")
         
         UNIDADE = df['MARCA'] +'-'+ df['ESCOLA']
-        COD_UNIDADE = UNIDADE.map(cod_table_unidade.set_index('UNIDADE_NOME')['UNIDADE_COD'].astype(str)).fillna("")
+        COD_UNIDADE = UNIDADE.map(cod_table_unidade.set_index('UNIDADE_NOME')['UNIDADE_COD'].astype(str)).fillna("000")
         
         # Verificar e utilizar 'DATA_ENTREGA'
         COD_ENTREGA = df['DATA_ENTREGA'].dt.strftime('%Y%m%d').fillna("")
@@ -94,7 +94,7 @@ def gerarCodOp(df, caminho_csv, engine):
             print("Atenção: Alguns códigos de marca ou região não foram encontrados.")
         
         # Concatenar os códigos para gerar 'COD_OP'
-        df['COD_OP'] = ' MARCA: '+ COD_MARCA +' REGIAO: '+ COD_REGIAO +' ENTREGA: '+ COD_ENTREGA +' SEGMENTO: '+ COD_SEGMENTO +' TURNO: '+ COD_TURNO +' MODELO: '+ COD_MODELO +' ESPECIFICACOES: '+ COD_ESPECIFICACOES +' UNIDADE: '+ COD_UNIDADE
+        df['COD_OP'] = COD_MARCA + COD_REGIAO + COD_ENTREGA + COD_SEGMENTO + COD_TURNO + COD_MODELO + COD_ESPECIFICACOES + COD_UNIDADE
         
         # Salvar novamente o DataFrame com a nova coluna
         df.to_csv(caminho_csv, index=False)
